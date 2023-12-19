@@ -6,12 +6,8 @@ services:
       - "${PORT}:3000"
     depends_on:
       - mariadb
-    environment:
-      DB_HOST: ${DB_HOST}
-      DB_PASS: ${DB_PASS}
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      NODE_ENV: ${NODE_ENV}
+    env_file:
+      - .env
     volumes:
       - .:/app
     command: sh -c 'if [ "$$NODE_ENV" = "development" ]; then npm run dev; else npm start; fi'

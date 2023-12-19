@@ -1,6 +1,9 @@
 import express, { Request, Response } from 'express';
 import apiRouter from './routes/api';
 import sequelize from './services/sequelize';
+import admin from 'firebase-admin';
+import { initializeApp } from 'firebase/app';
+import connectWithRetry from './helpers/connectWithRetry';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,7 +16,8 @@ app.get('/', (_req: Request, res: Response) => {
         signalements: {
             create: '/signalements/create',
             list: '/signalements/list',
-            getOne: '/signalements/getOne/:id'
+            one: '/signalements/one/:id',
+            user: '/signalements/user/:uid'
         }
     });
 });
@@ -21,26 +25,30 @@ app.get('/', (_req: Request, res: Response) => {
 // API routes
 app.use('/', apiRouter);
 
-// Connect to database with retry
-const connectWithRetry = async (retries = 5, delay = 7000): Promise<void> => {
-    return sequelize.authenticate().then(() => {
-        console.log('Connection has been established successfully.');
+connectWithRetry(async () => {
+    await sequelize.authenticate();
+    await sequelize.sync();
+}, "Sequelize");
 
-        // Create tables if not exists
-        sequelize.sync();
-    }).catch(async (err: Error) => {
-        console.error('Unable to connect to the database:', err);
-        if (retries === 0) {
-            console.error('No more retries left.');
-            return;
-        }
-        console.log(`Retrying connection to database... (${retries} retries left)`);
-        await new Promise(res => setTimeout(res, delay));
-        return connectWithRetry(retries - 1, delay);
+connectWithRetry(async () => {
+    admin.initializeApp({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        credential: admin.credential.cert({
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, '\n')
+        })
     });
-};
+}, "Firebase Admin");
 
-connectWithRetry();
+
+connectWithRetry(async () => {
+    initializeApp({
+        apiKey: process.env.FIREBASE_API_KEY,
+        authDomain: `${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com`,
+        projectId: process.env.FIREBASE_PROJECT_ID
+    });
+}, "Firebase SDK");
 
 // Start server
 app.listen(port, () => {
