@@ -11,7 +11,7 @@ export const createSignalement = async (req: Request, res: Response) => {
 
   try {
     const signalement = await Signalement.create({
-      uid,
+      userId: uid,
       coordinates,
       selectedDangerItems
     });
@@ -80,6 +80,62 @@ export const getUserSignalements = async (_req: Request, res: Response) => {
     }
 
     return res.status(200).json(signalements);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json(e);
+  }
+}
+
+export const updateSignalement = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { coordinates, selectedDangerItems } = req.body;
+  const { uid } = res.locals.user;
+
+  if (!id || isNaN(Number(id))) return res.status(400).json({ message: "Invalid id" });
+  if (!coordinates || !selectedDangerItems) return res.status(400).json({ message: "Invalid data provided" });
+  if (!uid) return res.status(400).json({ message: "Invalid uid" });
+
+  try {
+    const signalement = await Signalement.findByPk(id);
+
+    if (!signalement) {
+      return res.status(404).json({ message: "Signalement not found" });
+    }
+
+    if (signalement.userId !== uid) {
+      return res.status(403).json({ message: "Unauthorized to modify this signalement" });
+    }
+
+    await signalement.update({ coordinates, selectedDangerItems });
+
+    return res.status(200).json(signalement);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json(e);
+  }
+}
+
+export const deleteSignalement = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { uid } = res.locals.user;
+
+  if (!id || isNaN(Number(id))) return res.status(400).json({ message: "Invalid id" });
+  if (!uid) return res.status(400).json({ message: "Invalid uid" });
+
+  try {
+    const signalement = await Signalement.findByPk(id);
+
+    if (!signalement) {
+      return res.status(404).json({ message: "Signalement not found" });
+    }
+
+    if (signalement.userId !== uid) {
+      return res.status(403).json({ message: "Unauthorized to delete this signalement" });
+    }
+
+    await signalement.destroy();
+
+    return res.status(200).json({ message: "Signalement deleted successfully" });
   } catch (e) {
     console.log(e);
     return res.status(500).json(e);
