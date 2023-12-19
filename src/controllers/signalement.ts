@@ -16,8 +16,8 @@ export const createSignalement = async (req: Request, res: Response) => {
   } catch (e) {
     if (e instanceof ValidationError) {
       const invalidItems = e.errors.map(error => error.value);
-      return res.status(400).json({ 
-        error: 'Invalid data provided in selectedDangerItems', 
+      return res.status(400).json({
+        error: 'Invalid data provided in selectedDangerItems',
         invalidItems: invalidItems
       });
     }
@@ -55,6 +55,27 @@ export const getSignalement = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json(signalement);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json(e);
+  }
+}
+
+export const getUserSignalements = async (_req: Request, res: Response) => {
+  const { uid } = res.locals.user;
+
+  if (!uid) return res.status(400).json({ message: "Invalid uid" });
+
+  try {
+    const signalements = await Signalement.findAll({
+      where: { userId: uid }
+    });
+
+    if (!signalements || signalements.length === 0) {
+      return res.status(404).json({ message: "Signalements not found for this user" });
+    }
+
+    return res.status(200).json(signalements);
   } catch (e) {
     console.log(e);
     return res.status(500).json(e);
