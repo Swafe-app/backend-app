@@ -4,9 +4,9 @@ import checkAuth from "../middleware/checkAuth";
 
 const router = Router();
 
-router.post("/create", createSignalement);
-router.get("/list", getSignalements);
-router.get("/one/:id", getSignalement);
+router.post("/create", checkAuth, createSignalement);
+router.get("/list", checkAuth, getSignalements);
+router.get("/one/:id", checkAuth, getSignalement);
 router.get("/user", checkAuth, getUserSignalements);
 
 export default router;

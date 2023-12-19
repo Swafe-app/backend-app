@@ -3,11 +3,15 @@ import Signalement from '../models/signalement';
 import { ValidationError } from 'sequelize';
 
 export const createSignalement = async (req: Request, res: Response) => {
-  const { userId, coordinates, selectedDangerItems } = req.body;
+  const { coordinates, selectedDangerItems } = req.body;
+  const { uid } = res.locals.user;
+
+  if (!coordinates || !selectedDangerItems) return res.status(400).json({ message: "Invalid data provided" });
+  if (!uid) return res.status(400).json({ message: "Invalid uid" });
 
   try {
     const signalement = await Signalement.create({
-      userId,
+      uid,
       coordinates,
       selectedDangerItems
     });
