@@ -41,7 +41,6 @@ connectWithRetry(async () => {
     });
 }, "Firebase Admin");
 
-
 connectWithRetry(async () => {
     initializeApp({
         apiKey: process.env.FIREBASE_API_KEY,
