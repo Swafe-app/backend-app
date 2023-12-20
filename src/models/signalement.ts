@@ -54,6 +54,15 @@ Signalement.init({
     coordinates: {
         type: DataTypes.JSON,
         allowNull: false,
+        validate: {
+            isValidCoordinates(value: SignalementCoordinatesType) {
+                if (!value || typeof value !== 'object') throw new ValidationError('Invalid coordinates', []);
+                if (!value.latitude || isNaN(Number(value.latitude))) throw new ValidationError('Invalid latitude', []);
+                if (!value.longitude || isNaN(Number(value.longitude))) throw new ValidationError('Invalid longitude', []);
+                if (value.latitude < -90 || value.latitude > 90) throw new ValidationError('Invalid latitude', []);
+                if (value.longitude < -180 || value.longitude > 180) throw new ValidationError('Invalid longitude', []);
+            }
+        },
         get() {
             const rawValue: string = this.getDataValue('coordinates');
             try {
