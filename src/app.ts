@@ -4,6 +4,7 @@ import sequelize from './services/sequelize';
 import admin from 'firebase-admin';
 import { initializeApp } from 'firebase/app';
 import connectWithRetry from './helpers/connectWithRetry';
+import { sendSuccess } from './helpers/response';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -12,14 +13,50 @@ app.use(express.json());
 
 // List of all available routes
 app.get('/', (_req: Request, res: Response) => {
-    res.json({
-        signalements: {
-            create: '/signalements/create',
-            list: '/signalements/list',
-            one: '/signalements/one/:id',
-            user: '/signalements/user/:uid'
-        }
-    });
+    sendSuccess(res, {
+        routes: [
+            {
+                name: "Signalements",
+                path: "/signalements",
+                routes: [
+                    {
+                        method: "POST",
+                        path: "/create"
+                    },
+                    {
+                        method: "GET",
+                        path: "/list"
+                    },
+                    {
+                        method: "GET",
+                        path: "/one/:id"
+                    },
+                    {
+                        method: "GET",
+                        path: "/user"
+                    },
+                    {
+                        method: "PUT",
+                        path: "/update/:id"
+                    },
+                    {
+                        method: "DELETE",
+                        path: "/delete/:id"
+                    }
+                ]
+            },
+            {
+                name: "User",
+                path: "/user",
+                routes: [
+                    {
+                        method: "POST",
+                        path: "/login"
+                    }
+                ]
+            }
+        ]
+    })
 });
 
 // API routes
