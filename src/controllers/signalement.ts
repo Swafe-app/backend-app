@@ -38,7 +38,7 @@ export const getSignalements = async (_req: Request, res: Response) => {
   try {
     const signalements = await Signalement.findAll();
 
-    if (!signalements) return sendNotFound(res, null, "Signalements not found");
+    if (!signalements || signalements.length < 1) return sendNotFound(res, null, "Signalements not found");
 
     return sendSuccess(res, signalements);
   } catch (e: any) {
