@@ -1,19 +1,23 @@
 import { NextFunction, Request, Response } from "express";
-import admin from "firebase-admin";
+import jwt from 'jsonwebtoken';
+import { sendForbidden, sendUnauthorized } from "../helpers/response";
 
-const checkAuth = async (req: Request, res: Response, next: NextFunction) => {  
+const JWT_SECRET = process.env.JWT_SECRET;
+
+const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(' ')[1];
-  
+
   if (!token) {
-    return res.status(401).json({ message: "Auth token is required" });
+    return sendUnauthorized(res, null, 'No token provided');
   }
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    res.locals.user = decodedToken;
+    if (!JWT_SECRET) return sendUnauthorized(res, null, 'No JWT_SECRET defined');
+    const decodedToken = jwt.verify(token, JWT_SECRET);
+    res.locals.user = decodedToken;        
     next();
-  } catch (error) {
-    return res.status(403).json({ message: "Invalid or expired token" });
+  } catch (error: any) {
+    return sendForbidden(res, error, "Invalid or expired token");
   }
 };
 

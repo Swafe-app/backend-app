@@ -12,6 +12,10 @@ export const sendUnauthorized = (res: Response, error: Error | null = null, mess
   res.status(401).json({ status: 'error', message, errors: error ? error.stack?.split('\n') : [] });
 };
 
+export const sendForbidden = (res: Response, error: Error | null = null, message: string = 'Forbidden') => {
+  res.status(403).json({ status: 'error', message, errors: error ? error.stack?.split('\n') : [] });
+};
+
 export const sendNotFound = (res: Response, error: Error | null = null, message: string = 'Not Found') => {
   res.status(404).json({ status: 'error', message, errors: error ? error.stack?.split('\n') : [] });
 };

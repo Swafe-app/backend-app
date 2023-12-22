@@ -20,6 +20,8 @@ class Signalement extends Model {
     declare userId: string;
     declare coordinates: SignalementCoordinatesType;
     declare selectedDangerItems: SignalementDangerItemsEnum[];
+    declare createdAt?: Date;
+    declare updatedAt?: Date;
 
     // Méthode de validation pour les éléments de danger sélectionnés
     validateSelectedDangerItems(items: SignalementDangerItemsEnum[]) {
