@@ -12,7 +12,7 @@ const port = process.env.PORT || 3000;
 const corsOptions = {
     origin: '*',
     optionsSuccessStatus: 200
-  };
+};
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -53,11 +53,53 @@ app.get('/', (_req: Request, res: Response) => {
             },
             {
                 name: "User",
-                path: "/user",
+                path: "/users",
                 routes: [
                     {
                         method: "POST",
                         path: "/login"
+                    },
+                    {
+                        method: "POST",
+                        path: "/create"
+                    },
+                    {
+                        method: "GET",
+                        path: "/one"
+                    },
+                    {
+                        method: "PUT",
+                        path: "/update"
+                    },
+                    {
+                        method: "PUT",
+                        path: "/updatePassword"
+                    },
+                    {
+                        method: "DELETE",
+                        path: "/delete"
+                    },
+                    {
+                        method: "GET",
+                        path: "/verifyEmail/:token"
+                    }
+                ]
+            },
+            {
+                name: "Admin",
+                path: "/admins",
+                routes: [
+                    {
+                        method: "POST",
+                        path: "/create"
+                    },
+                    {
+                        method: "GET",
+                        path: "/userList"
+                    },
+                    {
+                        method: "GET",
+                        path: "/adminList"
                     }
                 ]
             }
