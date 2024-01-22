@@ -1,14 +1,20 @@
 import express, { Request, Response } from 'express';
+import cors from 'cors';
 import apiRouter from './routes/api';
 import sequelize from './services/sequelize';
-import admin from 'firebase-admin';
-import { initializeApp } from 'firebase/app';
 import connectWithRetry from './helpers/connectWithRetry';
 import { sendSuccess } from './helpers/response';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Configuration CORS
+const corsOptions = {
+    origin: '*',
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // List of all available routes
@@ -47,11 +53,53 @@ app.get('/', (_req: Request, res: Response) => {
             },
             {
                 name: "User",
-                path: "/user",
+                path: "/users",
                 routes: [
                     {
                         method: "POST",
                         path: "/login"
+                    },
+                    {
+                        method: "POST",
+                        path: "/create"
+                    },
+                    {
+                        method: "GET",
+                        path: "/one"
+                    },
+                    {
+                        method: "PUT",
+                        path: "/update"
+                    },
+                    {
+                        method: "PUT",
+                        path: "/updatePassword"
+                    },
+                    {
+                        method: "DELETE",
+                        path: "/delete"
+                    },
+                    {
+                        method: "GET",
+                        path: "/verifyEmail/:token"
+                    }
+                ]
+            },
+            {
+                name: "Admin",
+                path: "/admins",
+                routes: [
+                    {
+                        method: "POST",
+                        path: "/create"
+                    },
+                    {
+                        method: "GET",
+                        path: "/userList"
+                    },
+                    {
+                        method: "GET",
+                        path: "/adminList"
                     }
                 ]
             }
@@ -64,27 +112,8 @@ app.use('/', apiRouter);
 
 connectWithRetry(async () => {
     await sequelize.authenticate();
-    await sequelize.sync();
+    await sequelize.sync({ force: false });
 }, "Sequelize");
-
-connectWithRetry(async () => {
-    admin.initializeApp({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        credential: admin.credential.cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, '\n')
-        })
-    });
-}, "Firebase Admin");
-
-connectWithRetry(async () => {
-    initializeApp({
-        apiKey: process.env.FIREBASE_API_KEY,
-        authDomain: `${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com`,
-        projectId: process.env.FIREBASE_PROJECT_ID
-    });
-}, "Firebase SDK");
 
 // Start server
 app.listen(port, () => {

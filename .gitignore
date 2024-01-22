@@ -1,6 +1,7 @@
 .idea/*
 package-lock.json
 mysql/*
+*.DS_STORE
 
 # Logs
 logs
