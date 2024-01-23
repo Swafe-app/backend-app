@@ -113,7 +113,7 @@ app.use('/', apiRouter);
 connectWithRetry(async () => {
     await sequelize.authenticate();
     await sequelize.sync({ force: false });
-}, "Sequelize");
+}, "Sequelize", 5);
 
 // Start server
 app.listen(port, () => {

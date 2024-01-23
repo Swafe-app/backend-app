@@ -1,0 +1,37 @@
+version: '3'
+services:
+  express-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    env_file:
+      - .env.prod
+    restart: unless-stopped
+    networks:
+      - mariadb-express-network
+      - traefik-proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.express-app.rule=Host(`api.swafe.app`)"
+      - "traefik.http.routers.express-app.entrypoints=websecure"
+      - "traefik.http.routers.express-app.tls.certresolver=myresolver"
+
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      - mariadb_volume:/var/lib/mysql
+    networks:
+      - mariadb-express-network
+
+networks:
+  traefik-proxy:
+    external: true
+  mariadb-express-network:
+    driver: bridge
+
+volumes:
+  mariadb_volume:
+    driver: local
