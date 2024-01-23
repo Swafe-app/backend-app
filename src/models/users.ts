@@ -17,6 +17,8 @@ class User extends Model {
     declare phoneVerified: boolean;
     declare role: string;
     declare verificationToken: string | null;
+    declare selfie: string | null;
+    declare selfieStatus: string;
     declare createdAt?: Date;
     declare updatedAt?: Date;
 }
@@ -77,6 +79,15 @@ User.init({
     verificationToken: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    selfie: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    selfieStatus: {
+        type: DataTypes.ENUM('validated', 'refused', 'pending', 'not_defined'),
+        allowNull: false,
+        defaultValue: 'not_defined'
     }
 }, {
     sequelize,

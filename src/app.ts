@@ -117,6 +117,9 @@ app.get('/', (_req: Request, res: Response) => {
 // API routes
 app.use('/', apiRouter);
 
+// File static route
+app.use('/get-selfie', express.static('uploads/selfies'));
+
 connectWithRetry(async () => {
     await sequelize.authenticate();
     await sequelize.sync({ force: false });
