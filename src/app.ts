@@ -8,9 +8,16 @@ import { sendSuccess } from './helpers/response';
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Configuration CORS
+// Configuration CORS, accept only 'swafe.app' domain and localhost
+const whitelist = [`http://localhost:${port}`, 'https://swafe.app'];
 const corsOptions = {
-    origin: '*',
+    origin: (origin: string | undefined, callback: any) => {
+        if (!origin || whitelist.indexOf(origin) !== -1) {
+            callback(null);
+        } else {
+            callback(`Origin ${origin} not allowed by CORS`);
+        }
+    },
     optionsSuccessStatus: 200
 };
 
