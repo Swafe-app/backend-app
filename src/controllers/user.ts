@@ -79,14 +79,16 @@ export const createUser = async (req: Request, res: Response) => {
 export const getUser = async (_: Request, res: Response) => {
   const { uid } = res.locals.user;
 
-  if (!uid) return sendBadRequest(res, null, "Invalid uid");
-
   try {
     const users = await User.findByPk(uid, { attributes: { exclude: ['password', 'verificationToken'] } });
 
     if (!users) return sendNotFound(res, null, "User not found");
 
-    return sendSuccess(res, users);
+    // Create token
+    if (!JWT_SECRET) return sendError(res, null, 'No JWT_SECRET defined');
+    const token = jwt.sign(createUserJwt(users), JWT_SECRET, { expiresIn: '1h' });
+
+    return sendSuccess(res, { user: createUserJwt(users), token});
   } catch (e: any) {
     console.log(e);
     return sendError(res, e, "Error getting user");

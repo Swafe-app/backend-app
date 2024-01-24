@@ -10,7 +10,9 @@ const createUserJwt = (user: User) => {
       phoneNumber: user.phoneNumber,
       emailVerified: user.emailVerified,
       phoneVerified: user.phoneVerified,
-      role: user.role
+      role: user.role,
+      selfie: user.selfie,
+      selfieStatus: user.selfieStatus,
     }
 }
 

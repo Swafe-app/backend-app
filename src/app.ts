@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import apiRouter from './routes/api';
 import sequelize from './services/sequelize';
 import connectWithRetry from './helpers/connectWithRetry';
@@ -9,16 +9,17 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Configuration CORS, accept only 'swafe.app' domain and localhost
-const whitelist = [`http://localhost:${port}`, 'https://swafe.app'];
-const corsOptions = {
+const whitelist = [`http://localhost:3002`, `http://localhost:3000`, 'https://swafe.app'];
+const corsOptions: CorsOptions = {
     origin: (origin: string | undefined, callback: any) => {
         if (!origin || whitelist.indexOf(origin) !== -1) {
-            callback(null);
+            callback(null, true);
         } else {
-            callback(`Origin ${origin} not allowed by CORS`);
+            callback(`Origin ${origin} not allowed by CORS`, false);
         }
     },
-    optionsSuccessStatus: 200
+    optionsSuccessStatus: 200,
+    credentials: true
 };
 
 app.use(cors(corsOptions));
