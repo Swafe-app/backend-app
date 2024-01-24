@@ -1,5 +1,7 @@
 .idea/*
 package-lock.json
+mysql/
+*.DS_STORE
 
 # Logs
 logs
@@ -77,6 +79,7 @@ web_modules/
 
 # dotenv environment variable files
 .env
+.env.prod
 .env.development.local
 .env.test.local
 .env.production.local
