@@ -5,6 +5,7 @@ import { sendBadRequest, sendError, sendNotFound, sendSuccess, sendUnauthorized 
 import User from '../models/users';
 import createUserJwt from '../helpers/createUserJwt';
 import crypto from 'crypto';
+import { deleteFile } from '../helpers/deleteFile';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -78,14 +79,16 @@ export const createUser = async (req: Request, res: Response) => {
 export const getUser = async (_: Request, res: Response) => {
   const { uid } = res.locals.user;
 
-  if (!uid) return sendBadRequest(res, null, "Invalid uid");
-
   try {
     const users = await User.findByPk(uid, { attributes: { exclude: ['password', 'verificationToken'] } });
 
     if (!users) return sendNotFound(res, null, "User not found");
 
-    return sendSuccess(res, users);
+    // Create token
+    if (!JWT_SECRET) return sendError(res, null, 'No JWT_SECRET defined');
+    const token = jwt.sign(createUserJwt(users), JWT_SECRET, { expiresIn: '1h' });
+
+    return sendSuccess(res, { user: createUserJwt(users), token});
   } catch (e: any) {
     console.log(e);
     return sendError(res, e, "Error getting user");
@@ -196,5 +199,75 @@ export const verifyEmail = async (req: Request, res: Response) => {
   } catch (e: any) {
     console.log(e);
     sendError(res, e, "Error verifying email");
+  }
+}
+
+export const uploadSelfie = async (req: Request, res: Response) => {
+  const { uid } = res.locals.user;
+  const { file } = req;
+
+  if (!file) {
+    return sendBadRequest(res, null, "No file uploaded");
+  }
+  if (!uid) return sendBadRequest(res, null, "Invalid uid");
+
+  try {
+    // Accept valide format image
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const { filename, path, size, mimetype } = file;
+
+    console.log(path);
+
+    if (!allowedMimes.includes(mimetype)) {
+      await deleteFile(path);
+      return sendBadRequest(res, null, "Invalid file format (only jpeg, jpg, png)");
+    }
+    if (!filename || !path || !size) {
+      await deleteFile(path);
+      return sendBadRequest(res, null, "Invalid file");
+    }
+    if (size > 10000000) {
+      await deleteFile(path);
+      return sendBadRequest(res, null, "File size must be less than 10MB");
+    }
+
+    const user = await User.findByPk(uid);
+    if (!user) {
+      await deleteFile(path);
+      return sendNotFound(res, null, "User not found");
+    }
+    if (user.selfieStatus !== 'not_defined' || user.selfie) {
+      await deleteFile(path);
+      let message;
+      switch (user.selfieStatus) {
+        case 'pending':
+          message = "Selfie already uploaded, waiting for verification";
+          break;
+        case 'verified':
+          message = "Selfie already verified";
+          break;
+        case 'rejected':
+          message = "Selfie already rejected";
+          break;
+        default:
+          message = "Selfie already uploaded";
+          break;
+      }
+      return sendBadRequest(res, null, message);
+    }
+
+    await user.update({
+      selfie: file.filename,
+      selfieStatus: 'pending'
+    });
+
+    sendSuccess(res, { fileName: user.selfie}, "Selfie uploaded successfully");
+  } catch (e: any) {
+    console.log(e);
+    if (req.file) {
+      const { path } = req.file;
+      await deleteFile(path);
+    }
+    sendError(res, e, "Error uploading selfie");
   }
 }
