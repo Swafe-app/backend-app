@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Configuration CORS, accept only 'swafe.app' domain and localhost
-const whitelist = [`http://localhost:3002`, `http://localhost:3000`, 'https://swafe.app'];
+const whitelist = [`http://localhost:3002`, `http://localhost:3000`, 'https://api.swafe.app', 'https://admin.swafe.app'];
 const corsOptions: CorsOptions = {
     origin: (origin: string | undefined, callback: any) => {
         if (!origin || whitelist.indexOf(origin) !== -1) {
