@@ -65,3 +65,27 @@ export const getAdmins = async (_: Request, res: Response) => {
     return sendError(res, e, "Error listing users");
   }
 }
+
+export const updateUserSelfieStatus = async (req: Request, res: Response) => {
+  const { selfieStatus, uid } = req.body;
+
+  if (!selfieStatus || !uid) {
+    return sendBadRequest(res, null, "selfieStatus and uid are required");
+  }
+  if (selfieStatus !== 'validated' && selfieStatus !== 'refused' && selfieStatus !== 'pending' && selfieStatus !== 'not_defined') {
+    return sendBadRequest(res, null, "selfieStatus must be validated, refused, pending or not_defined");
+  }
+
+  try {
+    const user = await User.findByPk(uid);
+
+    if (!user) return sendNotFound(res, null, "User not found");
+
+    await user.update({ selfieStatus });
+
+    return sendSuccess(res, user);
+  } catch (e: any) {
+    console.log(e);
+    return sendError(res, e, "Error updating user");
+  }
+}
