@@ -88,7 +88,7 @@ export const getUser = async (_: Request, res: Response) => {
     if (!JWT_SECRET) return sendError(res, null, 'No JWT_SECRET defined');
     const token = jwt.sign(createUserJwt(users), JWT_SECRET, { expiresIn: '1h' });
 
-    return sendSuccess(res, { user: createUserJwt(users), token});
+    return sendSuccess(res, { user: createUserJwt(users), token });
   } catch (e: any) {
     console.log(e);
     return sendError(res, e, "Error getting user");
@@ -111,13 +111,17 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     // Verify if email or phoneNumber already exists
-    const existingEmail = await User.findOne({ where: { email } });
-    if (existingEmail && existingEmail.uid !== uid) {
-      return sendBadRequest(res, null, "Email already in use");
+    if (email) {
+      const existingEmail = await User.findOne({ where: { email } });
+      if (existingEmail && existingEmail.uid !== uid) {
+        return sendBadRequest(res, null, "Email already in use");
+      }
     }
-    const existingPhoneNumber = await User.findOne({ where: { phoneNumber } });
-    if (existingPhoneNumber && existingPhoneNumber.uid !== uid) {
-      return sendBadRequest(res, null, "Phone number already in use");
+    if (phoneNumber) {
+      const existingPhoneNumber = await User.findOne({ where: { phoneNumber } });
+      if (existingPhoneNumber && existingPhoneNumber.uid !== uid) {
+        return sendBadRequest(res, null, "Phone number already in use");
+      }
     }
 
     await user.update({
@@ -271,7 +275,7 @@ export const uploadSelfie = async (req: Request, res: Response) => {
       selfieStatus: 'pending'
     });
 
-    sendSuccess(res, { fileName: user.selfie}, "Selfie uploaded successfully");
+    sendSuccess(res, { fileName: user.selfie }, "Selfie uploaded successfully");
   } catch (e: any) {
     console.log(e);
     if (req.file) {
