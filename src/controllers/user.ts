@@ -40,17 +40,25 @@ export const loginUser = async (req: Request, res: Response) => {
 }
 
 export const createUser = async (req: Request, res: Response) => {
-  const { email, password, firstName, lastName } = req.body;
+  const { email, password, firstName, lastName, phoneNumber, phoneCountryCode } = req.body;
 
   if (!email || !password || !firstName || !lastName) {
     return sendBadRequest(res, null, "Email, password, firstName, and lastName are required");
   }
 
   try {
-    // Verify if user already exists
+    // Verify if user email already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return sendBadRequest(res, null, "Email already in use");
+    }
+
+    // Verify if user phoneNumber already exists
+    if (phoneNumber) {
+      const existingPhoneNumber = await User.findOne({ where: { phoneNumber } });
+      if (existingPhoneNumber) {
+        return sendBadRequest(res, null, "Phone number already in use");
+      }
     }
 
     // Create verification token
@@ -62,6 +70,8 @@ export const createUser = async (req: Request, res: Response) => {
       password,
       firstName,
       lastName,
+      phoneNumber,
+      phoneCountryCode,
       verificationToken
     });
 
@@ -111,13 +121,13 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     // Verify if email or phoneNumber already exists
-    if (email) {
+    if (email !== undefined) {
       const existingEmail = await User.findOne({ where: { email } });
       if (existingEmail && existingEmail.uid !== uid) {
         return sendBadRequest(res, null, "Email already in use");
       }
     }
-    if (phoneNumber) {
+    if (phoneNumber !== undefined) {
       const existingPhoneNumber = await User.findOne({ where: { phoneNumber } });
       if (existingPhoneNumber && existingPhoneNumber.uid !== uid) {
         return sendBadRequest(res, null, "Phone number already in use");
@@ -227,14 +237,12 @@ export const uploadSelfie = async (req: Request, res: Response) => {
 
   try {
     // Accept valide format image
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/heic', 'image/heif'];
     const { filename, path, size, mimetype } = file;
-
-    console.log(path);
 
     if (!allowedMimes.includes(mimetype)) {
       await deleteFile(path);
-      return sendBadRequest(res, null, "Invalid file format (only jpeg, jpg, png)");
+      return sendBadRequest(res, null, "Invalid file format (only jpeg, jpg, png, heic, heif)");
     }
     if (!filename || !path || !size) {
       await deleteFile(path);
@@ -250,7 +258,7 @@ export const uploadSelfie = async (req: Request, res: Response) => {
       await deleteFile(path);
       return sendNotFound(res, null, "User not found");
     }
-    if (user.selfieStatus !== 'not_defined' || user.selfie) {
+    if (user.selfieStatus !== 'not_defined' && user.selfieStatus !== 'refused') {
       await deleteFile(path);
       let message;
       switch (user.selfieStatus) {
@@ -259,9 +267,6 @@ export const uploadSelfie = async (req: Request, res: Response) => {
           break;
         case 'verified':
           message = "Selfie already verified";
-          break;
-        case 'rejected':
-          message = "Selfie already rejected";
           break;
         default:
           message = "Selfie already uploaded";
