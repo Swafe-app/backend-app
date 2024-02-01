@@ -111,13 +111,13 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     // Verify if email or phoneNumber already exists
-    if (email) {
+    if (email !== undefined) {
       const existingEmail = await User.findOne({ where: { email } });
       if (existingEmail && existingEmail.uid !== uid) {
         return sendBadRequest(res, null, "Email already in use");
       }
     }
-    if (phoneNumber) {
+    if (phoneNumber !== undefined) {
       const existingPhoneNumber = await User.findOne({ where: { phoneNumber } });
       if (existingPhoneNumber && existingPhoneNumber.uid !== uid) {
         return sendBadRequest(res, null, "Phone number already in use");
