@@ -18,7 +18,7 @@ export const swaggerOptions = {
                     "tags": [
                         "users"
                     ],
-                    "summary": "Créer un nouvel utilisateur",
+                    "summary": "Permet de créer un nouvel utilisateur",
                     "requestBody": {
                         "required": true,
                         "content": {
@@ -135,7 +135,7 @@ export const swaggerOptions = {
                         "users"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Pour se connecter ",
+                    "summary": "Permet à un utilisateur de se connecter",
                     "requestBody": {
                         "required": true,
                         "content": {
@@ -246,7 +246,7 @@ export const swaggerOptions = {
                         "users"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Récupérer un utilisateur",
+                    "summary": "Permet de récupérer les informations de l'utilisateur connecté",
                     "responses": {
                         "200": {
                             "content": {
@@ -338,7 +338,7 @@ export const swaggerOptions = {
                         "users"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Mettre à jour l'utilisateur",
+                    "summary": "Permet de mettre à jour les données de l'utilisateur connecté",
                     "requestBody": {
                         "required": true,
                         "content": {
@@ -458,7 +458,7 @@ export const swaggerOptions = {
                         "users"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Mettre à jour le mot de passe de l'utilisateur",
+                    "summary": "Permet de mettre à jour le mot de passe de l'utilisateur connecté",
                     "requestBody": {
                         "required": true,
                         "content": {
@@ -569,14 +569,14 @@ export const swaggerOptions = {
                         {
                             "name": "token",
                             "in": "path",
-                            "description": "Token for email verification",
+                            "description": "Token pour la vérification de l'email",
                             "required": true,
                             "schema": {
                                 "type": "string"
                             }
                         }
                     ],
-                    "summary": "Permet de vérifier son mail",
+                    "summary": "Permet de vérifier l'email envoyé à l'utilisateur",
                     "responses": {
                         "200": {
                             "content": {
@@ -666,7 +666,7 @@ export const swaggerOptions = {
                         "users"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Permet d'uploader un selfie pour un utlisateur",
+                    "summary": "Permet d'uploader un selfie pour l'utilisateur connecté",
                     "requestBody": {
                         "required": true,
                         "content": {
@@ -746,7 +746,7 @@ export const swaggerOptions = {
                         "users"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Permet de supprimer un utilisateur",
+                    "summary": "Permet de supprimer l'utilisateur connecté",
                     "responses": {
                         "200": {
                             "content": {
@@ -836,7 +836,7 @@ export const swaggerOptions = {
                         "admins"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Permet de créer un admin",
+                    "summary": "Permet de créer un administrateur",
                     "requestBody": {
                         "required": true,
                         "content": {
@@ -970,35 +970,53 @@ export const swaggerOptions = {
                                             "data": {
                                                 "type": "array",
                                                 "items": {
-                                                    "user": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "uid": {
-                                                                "type": "string"
-                                                            },
-                                                            "email": {
-                                                                "type": "string"
-                                                            },
-                                                            "firstName": {
-                                                                "type": "string"
-                                                            },
-                                                            "lastName": {
-                                                                "type": "string"
-                                                            },
-                                                            "emailVerified": {
-                                                                "type": "boolean"
-                                                            },
-                                                            "phoneVerified": {
-                                                                "type": "boolean"
-                                                            },
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "uid": {
+                                                            "type": "string"
+                                                        },
+                                                        "email": {
+                                                            "type": "string"
+                                                        },
+                                                        "firstName": {
+                                                            "type": "string"
+                                                        },
+                                                        "lastName": {
+                                                            "type": "string"
+                                                        },
+                                                        "phoneCountryCode": {
+                                                            "type": "string"
+                                                        },
+                                                        "phoneNumber": {
+                                                            "type": "string"
+                                                        },
+                                                        "emailVerified": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "phoneVerified": {
+                                                            "type": "boolean"
                                                         },
                                                         "role": {
+                                                            "type": "string"
+                                                        },
+                                                        "verificationToken": {
+                                                            "type": "string"
+                                                        },
+                                                        "selfie": {
                                                             "type": "string"
                                                         },
                                                         "selfieStatus": {
                                                             "type": "string"
                                                         },
-                                                    }
+                                                        "createdAt": {
+                                                            "type": "time",
+                                                            "format": "date-time"
+                                                        },
+                                                        "updatedAt": {
+                                                            "type": "time",
+                                                            "format": "date-time"
+                                                        }
+                                                    },
                                                 }
                                             },
                                         },
@@ -1043,13 +1061,101 @@ export const swaggerOptions = {
                         "admins"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Get all admins",
+                    "summary": "Permet de récupérer la liste des administrateurs",
                     "responses": {
                         "200": {
-                            "description": "Admins retrieved successfully"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "uid": {
+                                                            "type": "string"
+                                                        },
+                                                        "email": {
+                                                            "type": "string"
+                                                        },
+                                                        "firstName": {
+                                                            "type": "string"
+                                                        },
+                                                        "lastName": {
+                                                            "type": "string"
+                                                        },
+                                                        "phoneCountryCode": {
+                                                            "type": "string"
+                                                        },
+                                                        "phoneNumber": {
+                                                            "type": "string"
+                                                        },
+                                                        "emailVerified": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "phoneVerified": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "role": {
+                                                            "type": "string"
+                                                        },
+                                                        "verificationToken": {
+                                                            "type": "string"
+                                                        },
+                                                        "selfie": {
+                                                            "type": "string"
+                                                        },
+                                                        "selfieStatus": {
+                                                            "type": "string"
+                                                        },
+                                                        "createdAt": {
+                                                            "type": "time",
+                                                            "format": "date-time"
+                                                        },
+                                                        "updatedAt": {
+                                                            "type": "time",
+                                                            "format": "date-time"
+                                                        }
+                                                    },
+                                                }
+                                            },
+                                        },
+                                    }
+                                }
+                            }
                         },
-                        "404": {
-                            "description": "Admins not found"
+                        "400": {
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "errors": {
+                                                "type": "array",
+                                                "items": {
+                                                    "message": {
+                                                        "type": "string",
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         "500": {
                             "description": "Error while getting admins"
@@ -1063,27 +1169,7 @@ export const swaggerOptions = {
                         "admins"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Get all admins",
-                    "responses": {
-                        "200": {
-                            "description": "Admins retrieved successfully"
-                        },
-                        "404": {
-                            "description": "Admins not found"
-                        },
-                        "500": {
-                            "description": "Error while getting admins"
-                        }
-                    }
-                }
-            },
-            "/users/selfieStatus": {
-                "tags": [
-                    "admins"
-                ],
-                "put": {
-                    "security": [{"BearerAuth": []}],
-                    "summary": "Update a user's selfie status",
+                    "summary": "Permet de modifier le statut du selfie d'un utilisateur",
                     "requestBody": {
                         "required": true,
                         "content": {
@@ -1091,10 +1177,10 @@ export const swaggerOptions = {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "selfieStatus": {
+                                        "uid": {
                                             "type": "string"
                                         },
-                                        "uid": {
+                                        "selfieStatus": {
                                             "type": "string"
                                         }
                                     }
@@ -1104,16 +1190,98 @@ export const swaggerOptions = {
                     },
                     "responses": {
                         "200": {
-                            "description": "User's selfie status updated successfully"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "uid": {
+                                                        "type": "string"
+                                                    },
+                                                    "email": {
+                                                        "type": "string"
+                                                    },
+                                                    "firstName": {
+                                                        "type": "string"
+                                                    },
+                                                    "lastName": {
+                                                        "type": "string"
+                                                    },
+                                                    "phoneCountryCode": {
+                                                        "type": "string"
+                                                    },
+                                                    "phoneNumber": {
+                                                        "type": "string"
+                                                    },
+                                                    "emailVerified": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "phoneVerified": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "role": {
+                                                        "type": "string"
+                                                    },
+                                                    "verificationToken": {
+                                                        "type": "string"
+                                                    },
+                                                    "selfie": {
+                                                        "type": "string"
+                                                    },
+                                                    "selfieStatus": {
+                                                        "type": "string"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "time",
+                                                        "format": "date-time"
+                                                    },
+                                                    "updatedAt": {
+                                                        "type": "time",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                            },
+                                        },
+                                    }
+                                }
+                            }
                         },
                         "400": {
-                            "description": "Bad request"
-                        },
-                        "404": {
-                            "description": "User not found"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "errors": {
+                                                "type": "array",
+                                                "items": {
+                                                    "message": {
+                                                        "type": "string",
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         "500": {
-                            "description": "Error while updating user's selfie status"
+                            "description": "Error while getting admins"
                         }
                     }
                 }
@@ -1124,7 +1292,7 @@ export const swaggerOptions = {
                         "signalements"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Create a new signalement",
+                    "summary": "Permet de créer un signalement",
                     "requestBody": {
                         "required": true,
                         "content": {
@@ -1133,7 +1301,15 @@ export const swaggerOptions = {
                                     "type": "object",
                                     "properties": {
                                         "coordinates": {
-                                            "type": "string"
+                                            "type": "object",
+                                            "properties": {
+                                                "latitude": {
+                                                    "type": "number"
+                                                },
+                                                "longitude": {
+                                                    "type": "number"
+                                                }
+                                            }
                                         },
                                         "selectedDangerItems": {
                                             "type": "array",
@@ -1148,10 +1324,110 @@ export const swaggerOptions = {
                     },
                     "responses": {
                         "200": {
-                            "description": "Signalement created successfully"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "coordinates": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "latitude": {
+                                                                "type": "number"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "number"
+                                                            }
+                                                        }
+                                                    },
+                                                    "selectedDangerItems": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "id": {
+                                                        "type": "number"
+                                                    },
+                                                    "userId": {
+                                                        "type": "string"
+                                                    },
+                                                    "updatedAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    }
+                                }
+                            }
                         },
                         "400": {
-                            "description": "Bad request"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "coordinates": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "latitude": {
+                                                                "type": "number"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "number"
+                                                            }
+                                                        }
+                                                    },
+                                                    "selectedDangerItems": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "id": {
+                                                        "type": "number"
+                                                    },
+                                                    "userId": {
+                                                        "type": "string"
+                                                    },
+                                                    "updatedAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    }
+                                }
+                            }
                         },
                         "500": {
                             "description": "Error while creating signalement"
@@ -1165,13 +1441,119 @@ export const swaggerOptions = {
                         "signalements"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Récupérer la liste des signalements",
+                    "summary": "Permet de récupérer la liste des signalements",
                     "responses": {
                         "200": {
-                            "description": "Signalements retrieved successfully"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "coordinates": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "latitude": {
+                                                                    "type": "number"
+                                                                },
+                                                                "longitude": {
+                                                                    "type": "number"
+                                                                }
+                                                            }
+                                                        },
+                                                        "selectedDangerItems": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "id": {
+                                                            "type": "number"
+                                                        },
+                                                        "userId": {
+                                                            "type": "string"
+                                                        },
+                                                        "updatedAt": {
+                                                            "type": "string",
+                                                            "format": "date-time"
+                                                        },
+                                                        "createdAt": {
+                                                            "type": "string",
+                                                            "format": "date-time"
+                                                        },
+                                                    },
+                                                },
+                                            }
+                                        },
+                                    }
+                                }
+                            }
                         },
-                        "404": {
-                            "description": "Signalements not found"
+                        "400": {
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "coordinates": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "latitude": {
+                                                                    "type": "number"
+                                                                },
+                                                                "longitude": {
+                                                                    "type": "number"
+                                                                }
+                                                            }
+                                                        },
+                                                        "selectedDangerItems": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "id": {
+                                                            "type": "number"
+                                                        },
+                                                        "userId": {
+                                                            "type": "string"
+                                                        },
+                                                        "updatedAt": {
+                                                            "type": "string",
+                                                            "format": "date-time"
+                                                        },
+                                                        "createdAt": {
+                                                            "type": "string",
+                                                            "format": "date-time"
+                                                        },
+                                                    },
+                                                },
+                                            }
+                                        },
+                                    }
+                                }
+                            }
                         },
                         "500": {
                             "description": "Error while getting signalements"
@@ -1185,13 +1567,13 @@ export const swaggerOptions = {
                         "signalements"
                     ],
                     "security": [{"BearerAuth": []}],
-                    "summary": "Get a specific signalement",
+                    "summary": "Permet de récupérer un signalement spécifique",
                     "parameters": [
                         {
                             "name": "id",
                             "in": "path",
                             "required": true,
-                            "description": "ID of the signalement to retrieve",
+                            "description": "Identifiant du signalement à récupérer",
                             "schema": {
                                 "type": "integer"
                             }
@@ -1199,10 +1581,110 @@ export const swaggerOptions = {
                     ],
                     "responses": {
                         "200": {
-                            "description": "Signalement retrieved successfully"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "coordinates": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "latitude": {
+                                                                "type": "number"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "number"
+                                                            }
+                                                        }
+                                                    },
+                                                    "selectedDangerItems": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "id": {
+                                                        "type": "number"
+                                                    },
+                                                    "userId": {
+                                                        "type": "string"
+                                                    },
+                                                    "updatedAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    }
+                                }
+                            }
                         },
                         "400": {
-                            "description": "Bad request"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "coordinates": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "latitude": {
+                                                                "type": "number"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "number"
+                                                            }
+                                                        }
+                                                    },
+                                                    "selectedDangerItems": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "id": {
+                                                        "type": "number"
+                                                    },
+                                                    "userId": {
+                                                        "type": "string"
+                                                    },
+                                                    "updatedAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    }
+                                }
+                            }
                         },
                         "404": {
                             "description": "Signalement not found"
@@ -1216,13 +1698,13 @@ export const swaggerOptions = {
                     "tags": [
                         "signalements"
                     ],
-                    "summary": "Update a specific signalement",
+                    "summary": "Permet de mettre à jour les données d'un signalement spécifique",
                     "parameters": [
                         {
                             "name": "id",
                             "in": "path",
                             "required": true,
-                            "description": "ID of the signalement to update",
+                            "description": "Identifiant du signalement à mettre à jour",
                             "schema": {
                                 "type": "integer"
                             }
@@ -1236,7 +1718,15 @@ export const swaggerOptions = {
                                     "type": "object",
                                     "properties": {
                                         "coordinates": {
-                                            "type": "string"
+                                            "type": "object",
+                                            "properties": {
+                                                "latitude": {
+                                                    "type": "number"
+                                                },
+                                                "longitude": {
+                                                    "type": "number"
+                                                }
+                                            }
                                         },
                                         "selectedDangerItems": {
                                             "type": "array",
@@ -1251,10 +1741,110 @@ export const swaggerOptions = {
                     },
                     "responses": {
                         "200": {
-                            "description": "Signalement updated successfully"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "coordinates": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "latitude": {
+                                                                "type": "number"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "number"
+                                                            }
+                                                        }
+                                                    },
+                                                    "selectedDangerItems": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "id": {
+                                                        "type": "number"
+                                                    },
+                                                    "userId": {
+                                                        "type": "string"
+                                                    },
+                                                    "updatedAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    }
+                                }
+                            }
                         },
                         "400": {
-                            "description": "Bad request"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "coordinates": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "latitude": {
+                                                                "type": "number"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "number"
+                                                            }
+                                                        }
+                                                    },
+                                                    "selectedDangerItems": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "id": {
+                                                        "type": "number"
+                                                    },
+                                                    "userId": {
+                                                        "type": "string"
+                                                    },
+                                                    "updatedAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    }
+                                }
+                            }
                         },
                         "404": {
                             "description": "Signalement not found"
@@ -1268,13 +1858,13 @@ export const swaggerOptions = {
                     "tags": [
                         "signalements"
                     ],
-                    "summary": "Delete a specific signalement",
+                    "summary": "Permet de supprimer un signalement spécifique",
                     "parameters": [
                         {
                             "name": "id",
                             "in": "path",
                             "required": true,
-                            "description": "ID of the signalement to delete",
+                            "description": "Identifiant du signalement à supprimer",
                             "schema": {
                                 "type": "integer"
                             }
@@ -1282,10 +1872,110 @@ export const swaggerOptions = {
                     ],
                     "responses": {
                         "200": {
-                            "description": "Signalement deleted successfully"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "coordinates": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "latitude": {
+                                                                "type": "number"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "number"
+                                                            }
+                                                        }
+                                                    },
+                                                    "selectedDangerItems": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "id": {
+                                                        "type": "number"
+                                                    },
+                                                    "userId": {
+                                                        "type": "string"
+                                                    },
+                                                    "updatedAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    }
+                                }
+                            }
                         },
                         "400": {
-                            "description": "Bad request"
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "message": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "coordinates": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "latitude": {
+                                                                "type": "number"
+                                                            },
+                                                            "longitude": {
+                                                                "type": "number"
+                                                            }
+                                                        }
+                                                    },
+                                                    "selectedDangerItems": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "id": {
+                                                        "type": "number"
+                                                    },
+                                                    "userId": {
+                                                        "type": "string"
+                                                    },
+                                                    "updatedAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    }
+                                }
+                            }
                         },
                         "404": {
                             "description": "Signalement not found"
@@ -1326,5 +2016,5 @@ export const swaggerOptions = {
             }
         }
     },
-    apis: ['./routes/*.ts'], // files containing annotations as above
+    apis: ['./routes/*.ts'],
 };
