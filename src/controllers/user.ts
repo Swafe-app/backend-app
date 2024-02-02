@@ -54,7 +54,7 @@ export const createUser = async (req: Request, res: Response) => {
     }
 
     // Verify if user phoneNumber already exists
-    if (phoneNumber) {
+    if (phoneNumber !== undefined) {
       const existingPhoneNumber = await User.findOne({ where: { phoneNumber } });
       if (existingPhoneNumber) {
         return sendBadRequest(res, null, "Phone number already in use");
