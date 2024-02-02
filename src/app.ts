@@ -4,6 +4,9 @@ import apiRouter from './routes/api';
 import sequelize from './services/sequelize';
 import connectWithRetry from './helpers/connectWithRetry';
 import { sendSuccess } from './helpers/response';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
+import { swaggerOptions } from './swagger/swaggerOptions';
 import mime from 'mime-types';
 
 const app = express();
@@ -24,6 +27,11 @@ const corsOptions: CorsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Swagger documentation
+const specs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 
 // List of all available routes
 app.get('/', (_req: Request, res: Response) => {
