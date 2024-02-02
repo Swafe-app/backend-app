@@ -98,7 +98,10 @@ export const updateSignalement = async (req: Request, res: Response) => {
     if (!signalement) return sendNotFound(res, null, "Signalement not found");
     if (signalement.userId !== uid) return sendUnauthorized(res, null, "Unauthorized to modify this signalement");
 
-    await signalement.update({ coordinates, selectedDangerItems });
+    await signalement.update({
+      coordinates: coordinates ?? signalement.coordinates,
+      selectedDangerItems: selectedDangerItems ?? signalement.selectedDangerItems
+    });
 
     return sendSuccess(res, signalement, "Signalement updated successfully");
   } catch (e: any) {
