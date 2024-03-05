@@ -1,4 +1,4 @@
-import { loginUser, createUser, getUser } from '../../src/controllers/user';
+import { loginUser, createUser, getUser, updateUser } from '../../src/controllers/user';
 import createUserJwt from '../../src/helpers/createUserJwt';
 import { sendBadRequest, sendSuccess, sendError, sendUnauthorized, sendNotFound } from '../../src/helpers/response';
 import User from '../../src/models/users';
@@ -175,8 +175,6 @@ describe('User controller', () => {
           uid: 'user123',
         },
       },
-      send: jest.fn(),
-      status: jest.fn().mockReturnThis(),
     } as any;
 
     it('should return not found if user does not exist', async () => {
@@ -213,6 +211,80 @@ describe('User controller', () => {
 
       await getUser(mockReq, mockRes);
       expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error getting user");
+    });
+  });
+
+  describe('updateUser', () => {
+    const mockReq = {
+      body: {
+        email: 'updated@example.com',
+        firstName: 'Updated',
+        lastName: 'User',
+        phoneCountryCode: '+1',
+        phoneNumber: '1234567890',
+      },
+    };
+
+    const mockRes = {
+      locals: {
+        user: {
+          uid: 'user123',
+        },
+      },
+    } as any;
+
+    it('should return bad request if nothing to update', async () => {
+      await updateUser({ body: {} } as any, mockRes);
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "Nothing to update");
+    });
+
+    it('should return bad request if uid is invalid', async () => {
+      const res = { ...mockRes, locals: { user: {} } };
+
+      await updateUser(mockReq as any, res);
+      expect(sendBadRequest).toHaveBeenCalledWith(res, null, "Invalid uid");
+    });
+
+    it('should return not found if user does not exist', async () => {
+      UserMock.findByPk.mockResolvedValue(null);
+
+      await updateUser(mockReq as any, mockRes);
+      expect(sendNotFound).toHaveBeenCalledWith(mockRes, null, "User not found");
+    });
+
+    it('should return bad request if email already in use by another user', async () => {
+      UserMock.findByPk.mockResolvedValue({ uid: 'user123' } as any);
+      UserMock.findOne.mockResolvedValueOnce({ uid: 'anotherUser123' } as any);
+
+      await updateUser(mockReq as any, mockRes);
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "Email already in use");
+    });
+
+    it('should return bad request if phone number already in use by another user', async () => {
+      UserMock.findByPk.mockResolvedValue({ uid: 'user123' } as any);
+      UserMock.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce({ uid: 'anotherUser123' } as any);
+
+      await updateUser(mockReq as any, mockRes);
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "Phone number already in use");
+    });
+
+    it('should update user and return success', async () => {
+      const userUpdateMock = jest.fn();
+      UserMock.findByPk.mockResolvedValue({ uid: 'user123', update: userUpdateMock } as any);
+      UserMock.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce(null);
+      jwtMock.sign.mockReturnValue('tokenMock' as any);
+      createUserJwtMock.mockReturnValue({ uid: 'user123' } as any);
+
+      await updateUser(mockReq as any, mockRes);
+      expect(userUpdateMock).toHaveBeenCalledWith({ ...mockReq.body });
+      expect(sendSuccess).toHaveBeenCalledWith(mockRes, { user: { uid: 'user123' } }, "User updated successfully");
+    });
+
+    it('should return error when update fails', async () => {
+      UserMock.findByPk.mockResolvedValue({ uid: 'user123', update: jest.fn().mockRejectedValue(new Error('Update error')) } as any);
+
+      await updateUser(mockReq as any, mockRes);
+      expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error updating user");
     });
   });
 });
