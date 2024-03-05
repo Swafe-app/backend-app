@@ -1,4 +1,4 @@
-import { loginUser, createUser, getUser, updateUser, updateUserPassword } from '../../src/controllers/user';
+import { loginUser, createUser, getUser, updateUser, updateUserPassword, deleteUser } from '../../src/controllers/user';
 import createUserJwt from '../../src/helpers/createUserJwt';
 import { sendBadRequest, sendSuccess, sendError, sendUnauthorized, sendNotFound } from '../../src/helpers/response';
 import User from '../../src/models/users';
@@ -350,6 +350,46 @@ describe('User controller', () => {
 
       await updateUserPassword(mockReq as any, mockRes);
       expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error updating user password");
+    });
+  });
+
+  describe('deleteUser', () => {
+    const mockRes = {
+      locals: {
+        user: {
+          uid: 'user123',
+        },
+      },
+    } as any;
+
+    it('should return bad request if uid is invalid', async () => {
+      const res = { ...mockRes, locals: { user: {} } };
+
+      await deleteUser({} as any, res);
+      expect(sendBadRequest).toHaveBeenCalledWith(res, null, "Invalid uid");
+    });
+
+    it('should return not found if user does not exist', async () => {
+      UserMock.findByPk.mockResolvedValue(null);
+
+      await deleteUser({} as any, mockRes);
+      expect(sendNotFound).toHaveBeenCalledWith(mockRes, null, "User not found");
+    });
+
+    it('should delete user and return success', async () => {
+      const userDestroyMock = jest.fn();
+      UserMock.findByPk.mockResolvedValue({ destroy: userDestroyMock } as any);
+
+      await deleteUser({} as any, mockRes);
+      expect(userDestroyMock).toHaveBeenCalled();
+      expect(sendSuccess).toHaveBeenCalledWith(mockRes, null, "User deleted successfully");
+    });
+
+    it('should return error when deletion fails', async () => {
+      UserMock.findByPk.mockResolvedValue({ destroy: jest.fn().mockRejectedValue(new Error('Deletion error')) } as any);
+
+      await deleteUser({} as any, mockRes);
+      expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error deleting user");
     });
   });
 });
