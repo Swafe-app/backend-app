@@ -7,7 +7,7 @@ import createUserJwt from '../helpers/createUserJwt';
 import crypto from 'crypto';
 import { deleteFile } from '../helpers/deleteFile';
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET: string | null = process.env.NODE_ENV === 'test' ? 'test' : process.env.JWT_SECRET || null;
 
 export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -34,7 +34,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
     sendSuccess(res, { user: createUserJwt(user), token })
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     sendUnauthorized(res, e, "Authentication failed");
   }
 }
@@ -81,7 +81,7 @@ export const createUser = async (req: Request, res: Response) => {
 
     sendSuccess(res, { user: createUserJwt(newUser), token });
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     sendError(res, e, "Error creating user");
   }
 }
@@ -100,7 +100,7 @@ export const getUser = async (_: Request, res: Response) => {
 
     return sendSuccess(res, { user: createUserJwt(users), token });
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     return sendError(res, e, "Error getting user");
   }
 }
@@ -144,7 +144,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
     sendSuccess(res, { user: createUserJwt(user) }, "User updated successfully");
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     sendError(res, e, "Error updating user");
   }
 }
@@ -176,7 +176,7 @@ export const updateUserPassword = async (req: Request, res: Response) => {
 
     sendSuccess(res, { user: createUserJwt(user) }, "Password updated successfully");
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     sendError(res, e, "Error updating user password");
   }
 }
@@ -196,7 +196,7 @@ export const deleteUser = async (_: Request, res: Response) => {
 
     sendSuccess(res, null, "User deleted successfully");
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     sendError(res, e, "Error deleting user");
   }
 }
@@ -221,7 +221,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
     sendSuccess(res, null, "Email verified successfully");
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     sendError(res, e, "Error verifying email");
   }
 }
@@ -282,7 +282,7 @@ export const uploadSelfie = async (req: Request, res: Response) => {
 
     sendSuccess(res, { fileName: user.selfie }, "Selfie uploaded successfully");
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     if (req.file) {
       const { path } = req.file;
       await deleteFile(path);
