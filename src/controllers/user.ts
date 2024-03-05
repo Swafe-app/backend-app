@@ -276,7 +276,7 @@ export const uploadSelfie = async (req: Request, res: Response) => {
     }
 
     await user.update({
-      selfie: file.filename,
+      selfie: filename,
       selfieStatus: 'pending'
     });
 

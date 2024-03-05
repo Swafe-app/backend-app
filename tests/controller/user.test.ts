@@ -1,5 +1,6 @@
-import { loginUser, createUser, getUser, updateUser, updateUserPassword, deleteUser, verifyEmail } from '../../src/controllers/user';
+import { loginUser, createUser, getUser, updateUser, updateUserPassword, deleteUser, verifyEmail, uploadSelfie } from '../../src/controllers/user';
 import createUserJwt from '../../src/helpers/createUserJwt';
+import { deleteFile } from '../../src/helpers/deleteFile';
 import { sendBadRequest, sendSuccess, sendError, sendUnauthorized, sendNotFound } from '../../src/helpers/response';
 import User from '../../src/models/users';
 import bcrypt from 'bcryptjs';
@@ -9,10 +10,12 @@ const bcryptMock = bcrypt as jest.Mocked<typeof bcrypt>;
 const jwtMock = jwt as jest.Mocked<typeof jwt>;
 const UserMock = User as jest.Mocked<typeof User>;
 const createUserJwtMock = createUserJwt as jest.MockedFunction<typeof createUserJwt>;
+const deleteFileMock = deleteFile as jest.MockedFunction<typeof deleteFile>;
 
 jest.mock('../../src/models/users');
 jest.mock('bcryptjs');
 jest.mock('jsonwebtoken');
+jest.mock('../../src/helpers/deleteFile');
 jest.mock('../../src/helpers/response', () => ({
   sendBadRequest: jest.fn(),
   sendUnauthorized: jest.fn(),
@@ -433,6 +436,110 @@ describe('User controller', () => {
 
       await verifyEmail(mockReq as any, mockRes);
       expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error verifying email");
+    });
+  });
+
+  describe('uploadSelfie', () => {
+    const mockRes = {
+      locals: {
+        user: {
+          uid: 'user123',
+        },
+      },
+    } as any;
+
+    it('should return bad request if no file uploaded', async () => {
+      const mockReq = { file: undefined };
+
+      await uploadSelfie(mockReq as any, mockRes);
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "No file uploaded");
+    });
+
+    it('should return bad request if invalid uid', async () => {
+      const mockReq = { file: { mimetype: 'image/jpeg' } };
+      const res = { ...mockRes, locals: { user: {} } };
+
+      await uploadSelfie(mockReq as any, res);
+      expect(sendBadRequest).toHaveBeenCalledWith(res, null, "Invalid uid");
+    });
+
+    it('should return bad request if invalid file format', async () => {
+      const mockReq = { file: { mimetype: 'image/gif', path: 'path/to/file.gif' } };
+
+      await uploadSelfie(mockReq as any, mockRes);
+      expect(deleteFileMock).toHaveBeenCalledWith('path/to/file.gif');
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "Invalid file format (only jpeg, jpg, png, heic, heif)");
+    });
+
+    it('should return bad request if undefined file params', async () => {
+      const mockReq = { file: { mimetype: 'image/jpeg', path: 'path/to/file.jpeg' } };
+
+      await uploadSelfie(mockReq as any, mockRes);
+      expect(deleteFileMock).toHaveBeenCalledWith('path/to/file.jpeg');
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "Invalid file");
+    });
+
+    it('should return bad request if file exceed 10MB', async () => {
+      const mockReq = { file: { mimetype: 'image/jpeg', filename: "file.jpeg", path: 'path/to/file.jpeg', size: 10000001 } };
+
+      await uploadSelfie(mockReq as any, mockRes);
+      expect(deleteFileMock).toHaveBeenCalledWith('path/to/file.jpeg');
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "File size must be less than 10MB");
+    });
+
+    it('should return not found if user does not exist', async () => {
+      const mockReq = { file: { mimetype: 'image/jpeg', filename: "file.jpeg", path: 'path/to/file.jpeg', size: 500000 } };
+      UserMock.findByPk.mockResolvedValue(null);
+
+      await uploadSelfie(mockReq as any, mockRes);
+      expect(deleteFileMock).toHaveBeenCalledWith('path/to/file.jpeg');
+      expect(sendNotFound).toHaveBeenCalledWith(mockRes, null, "User not found");
+    });
+
+    it('should return bad request if selfie status is not acceptable for update', async () => {
+      const mockReq = { file: { mimetype: 'image/jpeg', filename: "file.jpeg", path: 'path/to/file.jpeg', size: 500000 } };
+      UserMock.findByPk.mockResolvedValue({ selfieStatus: 'pending' } as any);
+
+      await uploadSelfie(mockReq as any, mockRes);
+      expect(deleteFileMock).toHaveBeenCalledWith('path/to/file.jpeg');
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "Selfie already uploaded, waiting for verification");
+    });
+
+    it('should return bad request if selfie status is not acceptable for update', async () => {
+      const mockReq = { file: { mimetype: 'image/jpeg', filename: "file.jpeg", path: 'path/to/file.jpeg', size: 500000 } };
+      UserMock.findByPk.mockResolvedValue({ selfieStatus: 'verified' } as any);
+
+      await uploadSelfie(mockReq as any, mockRes);
+      expect(deleteFileMock).toHaveBeenCalledWith('path/to/file.jpeg');
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "Selfie already verified");
+    });
+
+    it('should return bad request if selfie status is not acceptable for update', async () => {
+      const mockReq = { file: { mimetype: 'image/jpeg', filename: "file.jpeg", path: 'path/to/file.jpeg', size: 500000 } };
+      UserMock.findByPk.mockResolvedValue({ selfieStatus: 'default' } as any);
+
+      await uploadSelfie(mockReq as any, mockRes);
+      expect(deleteFileMock).toHaveBeenCalledWith('path/to/file.jpeg');
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "Selfie already uploaded");
+    });
+
+    it('should update user selfie and return success', async () => {
+      const userUpdateMock = jest.fn();
+      const mockReq = { file: { mimetype: 'image/jpeg', filename: 'selfie.jpeg', path: 'path/to/selfie.jpeg', size: 500000 } };
+      UserMock.findByPk.mockResolvedValue({ update: userUpdateMock, selfieStatus: 'not_defined', selfie: 'selfie.jpeg' } as any);
+
+      await uploadSelfie(mockReq as any, mockRes);
+      expect(userUpdateMock).toHaveBeenCalledWith({ selfie: 'selfie.jpeg', selfieStatus: 'pending' });
+      expect(sendSuccess).toHaveBeenCalledWith(mockRes, { fileName: 'selfie.jpeg' }, "Selfie uploaded successfully");
+    });
+
+    it('should return error when uploading fails', async () => {
+      const mockReq = { file: { mimetype: 'image/jpeg', filename: 'file.jpeg', path: 'path/to/file.jpeg', size: 500000 } };
+      UserMock.findByPk.mockResolvedValue({ update: jest.fn().mockRejectedValue(new Error('Update error')), selfieStatus: 'not_defined' } as any);
+
+      await uploadSelfie(mockReq as any, mockRes);
+      expect(deleteFileMock).toHaveBeenCalledWith('path/to/file.jpeg');
+      expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error uploading selfie");
     });
   });
 });
