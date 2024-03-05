@@ -1,4 +1,4 @@
-import { loginUser, createUser, getUser, updateUser } from '../../src/controllers/user';
+import { loginUser, createUser, getUser, updateUser, updateUserPassword } from '../../src/controllers/user';
 import createUserJwt from '../../src/helpers/createUserJwt';
 import { sendBadRequest, sendSuccess, sendError, sendUnauthorized, sendNotFound } from '../../src/helpers/response';
 import User from '../../src/models/users';
@@ -285,6 +285,71 @@ describe('User controller', () => {
 
       await updateUser(mockReq as any, mockRes);
       expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error updating user");
+    });
+  });
+
+  describe('updateUserPassword', () => {
+    const mockReq = {
+      body: {
+        password: 'currentPassword',
+        newPassword: 'newPassword123',
+      },
+    };
+
+    const mockRes = {
+      locals: {
+        user: {
+          uid: 'user123',
+        },
+      },
+    } as any;
+
+    it('should return bad request if password fields are missing', async () => {
+      await updateUserPassword({ body: {} } as any, mockRes);
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "Password and newPassword are required");
+    });
+
+    it('should return bad request if uid is invalid', async () => {
+      const res = { ...mockRes, locals: { user: {} } };
+
+      await updateUserPassword(mockReq as any, res);
+      expect(sendBadRequest).toHaveBeenCalledWith(res, null, "Invalid uid");
+    });
+
+    it('should return not found if user does not exist', async () => {
+      UserMock.findByPk.mockResolvedValue(null);
+
+      await updateUserPassword(mockReq as any, mockRes);
+      expect(sendNotFound).toHaveBeenCalledWith(mockRes, null, "User not found");
+    });
+
+    it('should return unauthorized if current password is invalid', async () => {
+      UserMock.findByPk.mockResolvedValue({ password: 'hashedPassword' } as any);
+      bcryptMock.compareSync.mockReturnValue(false);
+
+      await updateUserPassword(mockReq as any, mockRes);
+      expect(sendUnauthorized).toHaveBeenCalledWith(mockRes, null, "Authentication failed");
+    });
+
+    it('should update password and return success', async () => {
+      const userUpdateMock = jest.fn();
+      UserMock.findByPk.mockResolvedValue({ password: 'hashedPassword', update: userUpdateMock } as any);
+      bcryptMock.compareSync.mockReturnValue(true);
+      createUserJwtMock.mockReturnValue({ uid: 'user123' } as any);
+
+      await updateUserPassword(mockReq as any, mockRes);
+      expect(userUpdateMock).toHaveBeenCalledWith({
+        password: mockReq.body.newPassword
+      });
+      expect(sendSuccess).toHaveBeenCalledWith(mockRes, { user: { uid: 'user123' } }, "Password updated successfully");
+    });
+
+    it('should return error when update fails', async () => {
+      UserMock.findByPk.mockResolvedValue({ password: 'hashedPassword', update: jest.fn().mockRejectedValue(new Error('Update error')) } as any);
+      bcryptMock.compareSync.mockReturnValue(true);
+
+      await updateUserPassword(mockReq as any, mockRes);
+      expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error updating user password");
     });
   });
 });
