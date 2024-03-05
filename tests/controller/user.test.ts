@@ -1,4 +1,4 @@
-import { loginUser, createUser, getUser, updateUser, updateUserPassword, deleteUser } from '../../src/controllers/user';
+import { loginUser, createUser, getUser, updateUser, updateUserPassword, deleteUser, verifyEmail } from '../../src/controllers/user';
 import createUserJwt from '../../src/helpers/createUserJwt';
 import { sendBadRequest, sendSuccess, sendError, sendUnauthorized, sendNotFound } from '../../src/helpers/response';
 import User from '../../src/models/users';
@@ -390,6 +390,49 @@ describe('User controller', () => {
 
       await deleteUser({} as any, mockRes);
       expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error deleting user");
+    });
+  });
+
+  describe('verifyEmail', () => {
+    const mockReq = {
+      params: {
+        token: 'verificationToken123',
+      },
+    };
+
+    const mockRes = "res" as any;
+
+    it('should return bad request if token is invalid', async () => {
+      const req = { params: {} };
+
+      await verifyEmail(req as any, mockRes);
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "Invalid token");
+    });
+
+    it('should return not found if user does not exist', async () => {
+      UserMock.findOne.mockResolvedValue(null);
+
+      await verifyEmail(mockReq as any, mockRes);
+      expect(sendNotFound).toHaveBeenCalledWith(mockRes, null, "User not found");
+    });
+
+    it('should verify email and return success', async () => {
+      const userUpdateMock = jest.fn();
+      UserMock.findOne.mockResolvedValue({ update: userUpdateMock } as any);
+
+      await verifyEmail(mockReq as any, mockRes);
+      expect(userUpdateMock).toHaveBeenCalledWith({
+        emailVerified: true,
+        verificationToken: null
+      });
+      expect(sendSuccess).toHaveBeenCalledWith(mockRes, null, "Email verified successfully");
+    });
+
+    it('should return error when verification fails', async () => {
+      UserMock.findOne.mockResolvedValue({ update: jest.fn().mockRejectedValue(new Error('Verification error')) } as any);
+
+      await verifyEmail(mockReq as any, mockRes);
+      expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error verifying email");
     });
   });
 });
