@@ -1,4 +1,4 @@
-import { createAdmin, getUsers } from '../../src/controllers/admin';
+import { createAdmin, getAdmins, getUsers } from '../../src/controllers/admin';
 import createUserJwt from '../../src/helpers/createUserJwt';
 import { sendBadRequest, sendSuccess, sendError, sendNotFound } from '../../src/helpers/response';
 import User from '../../src/models/users';
@@ -98,6 +98,35 @@ describe('Admin controller', () => {
       UserMock.findAll.mockRejectedValue(new Error('Database error'));
 
       await getUsers({} as any, mockRes);
+      expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error listing users");
+    });
+  });
+
+  describe('getAdmins', () => {
+    const mockRes = "res" as any;
+
+    it('should return not found if no admins exist', async () => {
+      UserMock.findAll.mockResolvedValue([]);
+
+      await getAdmins({} as any, mockRes);
+      expect(sendNotFound).toHaveBeenCalledWith(mockRes, null, "Users not found");
+    });
+
+    it('should return list of admins if admins exist', async () => {
+      const admins = [
+        { id: 1, email: 'admin1@example.com', firstName: 'Admin', lastName: 'One', role: 'admin' },
+        { id: 2, email: 'admin2@example.com', firstName: 'Admin', lastName: 'Two', role: 'admin' },
+      ];
+      UserMock.findAll.mockResolvedValue(admins as any);
+
+      await getAdmins({} as any, mockRes);
+      expect(sendSuccess).toHaveBeenCalledWith(mockRes, admins);
+    });
+
+    it('should return error if there is a problem listing admins', async () => {
+      UserMock.findAll.mockRejectedValue(new Error('Database error'));
+
+      await getAdmins({} as any, mockRes);
       expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error listing users");
     });
   });
