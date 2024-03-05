@@ -42,6 +42,7 @@ describe('loginUser', () => {
 
   it('should return unauthorized if user does not exist', async () => {
     UserMock.findOne.mockResolvedValue(null);
+
     await loginUser(mockReq as any, mockRes);
     expect(sendUnauthorized).toHaveBeenCalledWith(mockRes, null, "Authentication failed");
   });
@@ -49,6 +50,7 @@ describe('loginUser', () => {
   it('should return unauthorized if password is invalid', async () => {
     UserMock.findOne.mockResolvedValue({ email: 'test@example.com', password: 'wrongPassword' } as any);
     bcryptMock.compareSync.mockReturnValue(false);
+
     await loginUser(mockReq as any, mockRes);
     expect(sendUnauthorized).toHaveBeenCalledWith(mockRes, null, "Authentication failed");
   });
@@ -61,7 +63,6 @@ describe('loginUser', () => {
     createUserJwtMock.mockReturnValue(mockUser as any);
 
     await loginUser(mockReq as any, mockRes);
-
     expect(jwt.sign).toHaveBeenCalled();
     expect(createUserJwt).toHaveBeenCalledWith(mockUser);
     expect(sendSuccess).toHaveBeenCalledWith(mockRes, { user: mockUser, token: 'tokenMock'});
