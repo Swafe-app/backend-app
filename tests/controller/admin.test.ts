@@ -1,4 +1,4 @@
-import { createAdmin, getAdmins, getUsers } from '../../src/controllers/admin';
+import { createAdmin, getAdmins, getUsers, updateUserSelfieStatus } from '../../src/controllers/admin';
 import createUserJwt from '../../src/helpers/createUserJwt';
 import { sendBadRequest, sendSuccess, sendError, sendNotFound } from '../../src/helpers/response';
 import User from '../../src/models/users';
@@ -128,6 +128,52 @@ describe('Admin controller', () => {
 
       await getAdmins({} as any, mockRes);
       expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error listing users");
+    });
+  });
+
+  describe('updateUserSelfieStatus', () => {
+    const mockReq = {
+      body: {
+        selfieStatus: 'validated',
+        uid: 'user123',
+      },
+    };
+
+    const mockRes = "res" as any;
+
+    it('should return bad request if required fields are missing', async () => {
+      await updateUserSelfieStatus({ body: {} } as any, mockRes);
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "selfieStatus and uid are required");
+    });
+
+    it('should return bad request if selfieStatus is invalid', async () => {
+      const invalidReq = { body: { selfieStatus: 'invalid_status', uid: 'user123' } };
+
+      await updateUserSelfieStatus(invalidReq as any, mockRes);
+      expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "selfieStatus must be validated, refused, pending or not_defined");
+    });
+
+    it('should return not found if user does not exist', async () => {
+      UserMock.findByPk.mockResolvedValue(null);
+
+      await updateUserSelfieStatus(mockReq as any, mockRes);
+      expect(sendNotFound).toHaveBeenCalledWith(mockRes, null, "User not found");
+    });
+
+    it('should update user selfie status and return success', async () => {
+      const userUpdateMock = jest.fn();
+      UserMock.findByPk.mockResolvedValue({ update: userUpdateMock } as any);
+
+      await updateUserSelfieStatus(mockReq as any, mockRes);
+      expect(userUpdateMock).toHaveBeenCalledWith({ selfieStatus: 'validated' });
+      expect(sendSuccess).toHaveBeenCalledWith(mockRes, expect.anything());
+    });
+
+    it('should return error if updating user fails', async () => {
+      UserMock.findByPk.mockResolvedValue({ update: jest.fn().mockRejectedValue(new Error('Update error')) } as any);
+
+      await updateUserSelfieStatus(mockReq as any, mockRes);
+      expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error updating user");
     });
   });
 });
