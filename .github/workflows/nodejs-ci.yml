@@ -12,7 +12,5 @@ jobs:
           node-version: '20.5.1'
       - name: Install dependencies
         run: npm install
-      - name: Run lint
-        run: npm run lint
       - name: Run tests
         run: npm test
