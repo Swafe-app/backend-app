@@ -5,7 +5,7 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coveragePathIgnorePatterns: ['/node_modules/', '/tests/'],
-  testMatch: [
-    "**/tests/**/*.test.ts"
-  ]
+  collectCoverage: true,
+  collectCoverageFrom: ['src/**/*.ts'],
+  testMatch: ["**/tests/**/*.test.ts"]
 };
