@@ -15,7 +15,7 @@ const mockRes = () => {
   return res as Response;
 };
 
-describe('Response helpers', () => {
+describe('Response helper', () => {
   let res: Response;
 
   beforeEach(() => {
