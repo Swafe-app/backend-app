@@ -1,5 +1,5 @@
-import {createSignalement} from '../../src/controllers/signalement';
-import {sendBadRequest, sendError, sendSuccess,} from '../../src/helpers/response';
+import {createSignalement, getSignalements} from '../../src/controllers/signalement';
+import {sendBadRequest, sendError, sendNotFound, sendSuccess,} from '../../src/helpers/response';
 import Signalement from "../../src/models/signalement";
 
 const SignalementMock = Signalement as jest.Mocked<typeof Signalement>;
@@ -59,5 +59,33 @@ describe('Signalement controller', () => {
             expect(sendSuccess).toHaveBeenCalledWith(resMock, {  ...mockReq.body }, "Signalement created successfully");
         });
 
+    });
+    describe('getSignalements', () => {
+        const mockRes = "res" as any;
+
+        it('should return not found if no signalements exist', async () => {
+            SignalementMock.findAll.mockResolvedValue([]);
+
+            await getSignalements({} as any, mockRes);
+            expect(sendNotFound).toHaveBeenCalledWith(mockRes, null, "Signalements not found");
+        });
+
+        it('should return list of signalements if signalements exist', async () => {
+            const signalements = [
+                { id: 1, coordinates: '1.234,5.678', selectedDangerItems: ['item1', 'item2'] },
+                { id: 2, coordinates: '1.234,5.678', selectedDangerItems: ['item1', 'item2'] },
+            ];
+            SignalementMock.findAll.mockResolvedValue(signalements as any);
+
+            await getSignalements({} as any, mockRes);
+            expect(sendSuccess).toHaveBeenCalledWith(mockRes, signalements);
+        });
+
+        it('should return error if there is a problem listing signalements', async () => {
+            SignalementMock.findAll.mockRejectedValue(new Error('Database error'));
+
+            await getSignalements({} as any, mockRes);
+            expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error while getting signalements");
+        });
     });
 });
