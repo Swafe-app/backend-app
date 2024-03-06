@@ -1,4 +1,4 @@
-import {createSignalement, getSignalements} from '../../src/controllers/signalement';
+import {createSignalement, getSignalement, getSignalements} from '../../src/controllers/signalement';
 import {sendBadRequest, sendError, sendNotFound, sendSuccess,} from '../../src/helpers/response';
 import Signalement from "../../src/models/signalement";
 
@@ -34,8 +34,8 @@ describe('Signalement controller', () => {
         const resMock = {...mockRes, locals: {user: {uid: 1}}};
 
         it('should return bad request if coordinates or selectedDangerItems is missing', async () => {
-            await createSignalement({body: {}} as any, mockRes);
-            expect(sendBadRequest).toHaveBeenCalledWith(mockRes, null, "Invalid data provided");
+            await createSignalement({body: {}} as any, resMock);
+            expect(sendBadRequest).toHaveBeenCalledWith(resMock, null, "Invalid data provided");
         });
 
         it('should return bad request if uid is invalid', async () => {
@@ -86,6 +86,41 @@ describe('Signalement controller', () => {
 
             await getSignalements({} as any, mockRes);
             expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error while getting signalements");
+        });
+    });
+
+    describe('getSignalement', () => {
+        const mockReq = { params: { id: 1 } } as any;
+
+        const mockRes = "res" as any;
+
+        it('should return not found if signalement does not exist', async () => {
+            SignalementMock.findByPk.mockResolvedValue(null);
+
+            await getSignalement(mockReq, mockRes);
+            expect(sendNotFound).toHaveBeenCalledWith(mockRes, null, "Signalement not found");
+        });
+
+        it('should return success with signalement  if signalement exists', async () => {
+            const mockSignalement = {
+                id: 1,
+                coordinates: '1.234,5.678',
+                selectedDangerItems: ['item1', 'item2'],
+            };
+            SignalementMock.findByPk.mockResolvedValue(mockSignalement as any);
+
+            await getSignalement(mockReq, mockRes);
+            expect(Signalement.findByPk).toHaveBeenCalledWith(1);
+            expect(sendSuccess).toHaveBeenCalledWith(mockRes, { ...mockSignalement });
+        });
+
+        it('should handle errors and return error response', async () => {
+            SignalementMock.findByPk.mockImplementation(() => {
+                throw new Error('Database error');
+            });
+
+            await getSignalement(mockReq, mockRes);
+            expect(sendError).toHaveBeenCalledWith(mockRes, expect.anything(), "Error while getting signalement");
         });
     });
 });
