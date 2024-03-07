@@ -4,7 +4,7 @@ import { sendBadRequest, sendError, sendNotFound, sendSuccess } from '../helpers
 import User from '../models/users';
 import createUserJwt from '../helpers/createUserJwt';
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET: string | null = process.env.NODE_ENV === 'test' ? 'test' : process.env.JWT_SECRET || null;
 
 export const createAdmin = async (req: Request, res: Response) => {
   const { email, password, firstName, lastName } = req.body;
@@ -35,7 +35,7 @@ export const createAdmin = async (req: Request, res: Response) => {
 
     sendSuccess(res, { admin: createUserJwt(newAdmin), token });
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     sendError(res, e, "Error creating admin");
   }
 }
@@ -48,7 +48,7 @@ export const getUsers = async (_: Request, res: Response) => {
 
     return sendSuccess(res, users);
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     return sendError(res, e, "Error listing users");
   }
 }
@@ -61,7 +61,7 @@ export const getAdmins = async (_: Request, res: Response) => {
 
     return sendSuccess(res, users);
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     return sendError(res, e, "Error listing users");
   }
 }
@@ -85,7 +85,7 @@ export const updateUserSelfieStatus = async (req: Request, res: Response) => {
 
     return sendSuccess(res, user);
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     return sendError(res, e, "Error updating user");
   }
 }
