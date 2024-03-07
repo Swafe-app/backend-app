@@ -7,6 +7,7 @@ const connectWithRetry = async (
     try {
         await connectFunction();
         console.log(`${serviceTitle} | Connection established successfully.`);
+        return;
     } catch (err) {
         console.error(`${serviceTitle} | Connection failed:`, err);
         if (retries === 0) {
