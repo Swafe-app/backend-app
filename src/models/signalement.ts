@@ -12,7 +12,22 @@ export enum SignalementDangerItemsEnum {
     HARCELEMENT = 'Harcèlement',
     AGRESSION_SEXUELLE = 'Agression sexuelle',
     AGRESSION_PHYSIQUE = 'Agression physique',
-    JE_ME_FAIS_SUIVRE = 'Je me fais suivre'
+    JE_ME_FAIS_SUIVRE = 'Je me fais suivre',
+    INCENDIE = 'Incendie',
+    METEO = 'Météo',
+    TRAVEAUX = 'Travaux',
+    MANQUE_ACCESSIBILITE = 'Manque d\'accessibilité',
+    VOITURE= 'Voiture',
+    VIOLENCE= 'Violence',
+    AGRESSION_VERBALE= 'Agression verbale',
+    INONDATION= 'Inondation',
+    TROU_SUR_LA_CHAUSSEE= 'Trou sur la chaussée',
+    OBSTABCLE_SUR_LA_CHAUSSEE= 'Obstacle sur la chaussée',
+    PERSONNE_IVRE= 'Personne ivre',
+    CONDUITE_DANGEREUSE= 'Conduite dangereuse',
+    FEU_DE_PIETON_DYSFONCTIONNEL= 'Feu de piéton dysfonctionnel',
+    MAUVAIS_ECLAIRAGE= 'Mauvais éclairage',
+
 }
 
 class Signalement extends Model {
