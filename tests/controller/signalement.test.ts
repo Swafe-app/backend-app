@@ -11,16 +11,12 @@ import {ValidationError, ValidationErrorItem} from "sequelize";
 const SignalementMock = Signalement as jest.Mocked<typeof Signalement>;
 
 jest.mock('../../src/models/signalement');
-jest.mock('jsonwebtoken');
-jest.mock('../../src/helpers/deleteFile');
 jest.mock('../../src/helpers/response', () => ({
     sendBadRequest: jest.fn(),
-    sendUnauthorized: jest.fn(),
     sendSuccess: jest.fn(),
     sendError: jest.fn(),
     sendNotFound: jest.fn(),
 }));
-jest.mock('../../src/helpers/createUserJwt');
 
 describe('Signalement controller', () => {
 
