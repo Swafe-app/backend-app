@@ -28,8 +28,7 @@ export const createSignalement = async (req: Request, res: Response) => {
       e.stack = invalidItems ?? e.stack;
       return sendBadRequest(res, e, "Invalid data provided in selectedDangerItems");
     }
-
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     return sendError(res, e, "Error while creating signalement");
   }
 }
@@ -42,7 +41,7 @@ export const getSignalements = async (_req: Request, res: Response) => {
 
     return sendSuccess(res, signalements);
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     return sendError(res, e, "Error while getting signalements");
   }
 }
@@ -59,7 +58,7 @@ export const getSignalement = async (req: Request, res: Response) => {
 
     return sendSuccess(res, signalement);
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     return sendError(res, e, "Error while getting signalement");
   }
 }
@@ -78,7 +77,7 @@ export const getUserSignalements = async (_req: Request, res: Response) => {
 
     return sendSuccess(res, signalements);
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     return sendError(res, e, "Error while getting user signalements");
   }
 }
@@ -114,8 +113,7 @@ export const updateSignalement = async (req: Request, res: Response) => {
       e.stack = invalidItems ?? e.stack;
       return sendBadRequest(res, e, "Invalid data provided in selectedDangerItems");
     }
-
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     return sendError(res, e, "Error while updating signalement");
   }
 }
@@ -137,7 +135,7 @@ export const deleteSignalement = async (req: Request, res: Response) => {
 
     return sendSuccess(res, { message: "Signalement deleted successfully" });
   } catch (e: any) {
-    console.log(e);
+    if (process.env.NODE_ENV === 'development') console.log(e);
     return sendError(res, e, "Error while deleting signalement");
   }
 }

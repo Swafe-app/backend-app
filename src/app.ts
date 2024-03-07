@@ -29,9 +29,10 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Swagger documentation
-const specs = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
-
+if (process.env.NODE_ENV === 'development') {
+    const specs = swaggerJsdoc(swaggerOptions);
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+}
 
 // List of all available routes
 app.get('/', (_req: Request, res: Response) => {
@@ -155,7 +156,7 @@ connectWithRetry(async () => {
 
 // Start server
 app.listen(port, () => {
-    console.log(`App listening at port http://localhost:${port}`);
+    if (process.env.NODE_ENV === 'development') console.log(`App listening at port ${port}`);
 });
 
 export default app;
