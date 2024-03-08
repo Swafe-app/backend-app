@@ -8,9 +8,11 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import { swaggerOptions } from './swagger/swaggerOptions';
 import mime from 'mime-types';
+import apiMetrics from 'prometheus-api-metrics';
 
 const app = express();
 const port = process.env.PORT || 3000;
+
 // Configuration CORS, accept all origins in development
 const whitelist = ['https://api.swafe.app', 'https://admin.swafe.app'];
 const corsOptions: CorsOptions = {
@@ -25,6 +27,7 @@ const corsOptions: CorsOptions = {
     credentials: true
 };
 
+app.use(apiMetrics())
 app.use(cors(corsOptions));
 app.use(express.json());
 
