@@ -6,6 +6,9 @@ import User from '../models/users';
 import createUserJwt from '../helpers/createUserJwt';
 import crypto from 'crypto';
 import { deleteFile } from '../helpers/deleteFile';
+import convert from 'heic-convert';
+import fs from 'fs';
+import { promisify } from 'util';
 
 const JWT_SECRET: string | null = process.env.NODE_ENV === 'test' ? 'test' : process.env.JWT_SECRET || null;
 
@@ -273,6 +276,19 @@ export const uploadSelfie = async (req: Request, res: Response) => {
           break;
       }
       return sendBadRequest(res, null, message);
+    }
+    if (user.selfie) {
+      const selfiePath = `uploads/selfies/${user.selfie}`;
+      if (fs.existsSync(selfiePath)) await deleteFile(selfiePath);
+    }
+    if (mimetype === 'image/heic' || mimetype === 'image/heif') {
+      const inputBuffer = await promisify(fs.readFile)(path);
+      const outputBuffer = await convert({
+        buffer: inputBuffer,
+        format: 'JPEG',
+        quality: 1
+      });
+      await promisify(fs.writeFile)(path, outputBuffer as any);
     }
 
     await user.update({
