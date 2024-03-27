@@ -2,6 +2,7 @@
 package-lock.json
 mysql/
 *.DS_STORE
+uploads/
 
 # Logs
 logs
