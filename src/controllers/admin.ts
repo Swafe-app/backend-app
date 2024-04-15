@@ -31,7 +31,7 @@ export const createAdmin = async (req: Request, res: Response) => {
 
     // Create token
     if (!JWT_SECRET) return sendError(res, null, 'No JWT_SECRET defined');
-    const token = jwt.sign(createUserJwt(newAdmin), JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(createUserJwt(newAdmin), JWT_SECRET, { expiresIn: '30d' });
 
     sendSuccess(res, { admin: createUserJwt(newAdmin), token });
   } catch (e: any) {

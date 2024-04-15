@@ -33,7 +33,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
     // Create token
     if (!JWT_SECRET) return sendError(res, null, 'No JWT_SECRET defined');
-    const token = jwt.sign(createUserJwt(user), JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(createUserJwt(user), JWT_SECRET, { expiresIn: '30d' });
 
     sendSuccess(res, { user: createUserJwt(user), token })
   } catch (e: any) {
@@ -80,7 +80,7 @@ export const createUser = async (req: Request, res: Response) => {
 
     // Create token
     if (!JWT_SECRET) return sendError(res, null, 'No JWT_SECRET defined');
-    const token = jwt.sign(createUserJwt(newUser), JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(createUserJwt(newUser), JWT_SECRET, { expiresIn: '30d' });
 
     sendSuccess(res, { user: createUserJwt(newUser), token });
   } catch (e: any) {
@@ -99,7 +99,7 @@ export const getUser = async (_: Request, res: Response) => {
 
     // Create token
     if (!JWT_SECRET) return sendError(res, null, 'No JWT_SECRET defined');
-    const token = jwt.sign(createUserJwt(users), JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(createUserJwt(users), JWT_SECRET, { expiresIn: '30d' });
 
     return sendSuccess(res, { user: createUserJwt(users), token });
   } catch (e: any) {
