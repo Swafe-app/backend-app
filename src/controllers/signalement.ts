@@ -139,3 +139,47 @@ export const deleteSignalement = async (req: Request, res: Response) => {
     return sendError(res, e, "Error while deleting signalement");
   }
 }
+
+export const upVoteSignalement = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { uid } = res.locals.user;
+
+  if (!id || isNaN(Number(id))) return sendBadRequest(res, null, "Invalid id");
+  if (!uid) return sendBadRequest(res, null, "Invalid uid");
+
+  try {
+    const signalement = await Signalement.findByPk(id);
+
+    if (!signalement) return sendNotFound(res, null, "Signalement not found");
+    if (signalement.userId === uid) return sendUnauthorized(res, null, "Unauthorized to upVote your own signalement");
+
+    await signalement.increment('upVote');
+
+    return sendSuccess(res, { upVote: signalement.upVote + 1 }, "Upvote added successfully");
+  } catch (e: any) {
+    if (process.env.NODE_ENV === 'development') console.log(e);
+    return sendError(res, e, "Error while adding upVote");
+  }
+}
+
+export const downVoteSignalement = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { uid } = res.locals.user;
+
+  if (!id || isNaN(Number(id))) return sendBadRequest(res, null, "Invalid id");
+  if (!uid) return sendBadRequest(res, null, "Invalid uid");
+
+  try {
+    const signalement = await Signalement.findByPk(id);
+
+    if (!signalement) return sendNotFound(res, null, "Signalement not found");
+    if (signalement.userId === uid) return sendUnauthorized(res, null, "Unauthorized to downVote your own signalement");
+
+    await signalement.increment('downVote');
+
+    return sendSuccess(res, { downVote: signalement.downVote + 1 }, "Downvote added successfully");
+  } catch (e: any) {
+    if (process.env.NODE_ENV === 'development') console.log(e);
+    return sendError(res, e, "Error while adding downVote");
+  }
+}
