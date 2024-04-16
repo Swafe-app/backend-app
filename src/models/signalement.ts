@@ -115,9 +115,16 @@ Signalement.init({
         defaultValue: 0
     },
     userVotedList: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
+        type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: []
+        defaultValue: '',
+        get() {
+            const rawValue: string = this.getDataValue('userVotedList');
+            return rawValue ? rawValue.split(',') : [];
+        },
+        set(value: string[]) {
+            this.setDataValue('userVotedList', value.join(','));
+        }
     }
 }, {
     sequelize,
