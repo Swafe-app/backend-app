@@ -152,8 +152,10 @@ export const upVoteSignalement = async (req: Request, res: Response) => {
 
     if (!signalement) return sendNotFound(res, null, "Signalement not found");
     if (signalement.userId === uid) return sendUnauthorized(res, null, "Unauthorized to upVote your own signalement");
+    if (signalement.userVotedList.includes(uid)) return sendUnauthorized(res, null, "Unauthorized to vote more than once on a signalement");
 
     await signalement.increment('upVote');
+    await signalement.update({ userVotedList: [...signalement.userVotedList, uid] });
 
     return sendSuccess(res, { upVote: signalement.upVote + 1 }, "Upvote added successfully");
   } catch (e: any) {
@@ -174,8 +176,10 @@ export const downVoteSignalement = async (req: Request, res: Response) => {
 
     if (!signalement) return sendNotFound(res, null, "Signalement not found");
     if (signalement.userId === uid) return sendUnauthorized(res, null, "Unauthorized to downVote your own signalement");
+    if (signalement.userVotedList.includes(uid)) return sendUnauthorized(res, null, "Unauthorized to vote more than once on a signalement");
 
     await signalement.increment('downVote');
+    await signalement.update({ userVotedList: [...signalement.userVotedList, uid] });
 
     return sendSuccess(res, { downVote: signalement.downVote + 1 }, "Downvote added successfully");
   } catch (e: any) {
