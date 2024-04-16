@@ -17,16 +17,16 @@ export enum SignalementDangerItemsEnum {
     METEO = 'Météo',
     TRAVEAUX = 'Travaux',
     MANQUE_ACCESSIBILITE = 'Manque d\'accessibilité',
-    VOITURE= 'Voiture',
-    VIOLENCE= 'Violence',
-    AGRESSION_VERBALE= 'Agression verbale',
-    INONDATION= 'Inondation',
-    TROU_SUR_LA_CHAUSSEE= 'Trou sur la chaussée',
-    OBSTABCLE_SUR_LA_CHAUSSEE= 'Obstacle sur la chaussée',
-    PERSONNE_IVRE= 'Personne ivre',
-    CONDUITE_DANGEREUSE= 'Conduite dangereuse',
-    FEU_DE_PIETON_DYSFONCTIONNEL= 'Feu de piéton dysfonctionnel',
-    MAUVAIS_ECLAIRAGE= 'Mauvais éclairage',
+    VOITURE = 'Voiture',
+    VIOLENCE = 'Violence',
+    AGRESSION_VERBALE = 'Agression verbale',
+    INONDATION = 'Inondation',
+    TROU_SUR_LA_CHAUSSEE = 'Trou sur la chaussée',
+    OBSTABCLE_SUR_LA_CHAUSSEE = 'Obstacle sur la chaussée',
+    PERSONNE_IVRE = 'Personne ivre',
+    CONDUITE_DANGEREUSE = 'Conduite dangereuse',
+    FEU_DE_PIETON_DYSFONCTIONNEL = 'Feu de piéton dysfonctionnel',
+    MAUVAIS_ECLAIRAGE = 'Mauvais éclairage',
 
 }
 
@@ -37,6 +37,8 @@ class Signalement extends Model {
     declare selectedDangerItems: SignalementDangerItemsEnum[];
     declare createdAt?: Date;
     declare updatedAt?: Date;
+    declare upVote: number;
+    declare downVote: number;
 
     // Méthode de validation pour les éléments de danger sélectionnés
     validateSelectedDangerItems(items: SignalementDangerItemsEnum[]) {
@@ -100,6 +102,16 @@ Signalement.init({
             this.validateSelectedDangerItems(value);
             this.setDataValue('selectedDangerItems', value.join(','));
         }
+    },
+    upVote: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    },
+    downVote: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
     }
 }, {
     sequelize,
