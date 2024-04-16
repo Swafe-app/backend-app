@@ -39,6 +39,7 @@ class Signalement extends Model {
     declare updatedAt?: Date;
     declare upVote: number;
     declare downVote: number;
+    declare userVotedList: string[];
 
     // Méthode de validation pour les éléments de danger sélectionnés
     validateSelectedDangerItems(items: SignalementDangerItemsEnum[]) {
@@ -112,6 +113,11 @@ Signalement.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0
+    },
+    userVotedList: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: false,
+        defaultValue: []
     }
 }, {
     sequelize,
